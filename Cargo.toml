@@ -1,0 +1,6 @@
+[package]
+name = "merlinus"
+version = "0.1.0"
+authors = ["rider <camtech075@gmail.com>"]
+
+[dependencies]
