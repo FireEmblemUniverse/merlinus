@@ -4,8 +4,34 @@
  */
 
 extern crate toml;
+extern crate lazy_static;
 
+// XXX
+use std::io::prelude::*;
+use std::fs;
 use std::collections::HashMap;
+
+static CONFIG_FILE: &'static str = "merlinus.conf";
+
+// XXX: I'm torn on whether this goes here or in main.rs. I'm putting it here
+// for now so the namespacing works nicely, but there's something to be said
+// for keeping the general program IO in main.rs.
+lazy_static! {
+    pub static ref CURRENT_CONFIG: BaseConfig = {
+        let mut buf = String::new();
+        // TODO: somehow allow this to be non-constant
+        match fs::File::open(CONFIG_FILE) {
+            // TODO: we can probably be more specific than just randomly
+            // panicking and displaying no actually useful information
+            Err(_) => panic!("Unable to open file!"),
+            Ok(ref mut f) => {
+                let _ = f.read_to_string(&mut buf);
+                toml::from_str(buf.as_str()).unwrap()
+            }
+        }
+    };
+}
+
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BaseConfig {
@@ -13,12 +39,18 @@ pub struct BaseConfig {
     pub title: String,
     #[serde(default)]
     pub backend: Backend,
+    #[serde(default = "get_default_location")]
+    pub meta_loc: String,
     #[serde(default = "HashMap::new")]
     pub tools: HashMap<String, ToolVer>,
 }
 
 fn get_default_name() -> String {
     "merlinus_project".to_string()
+}
+
+fn get_default_location() -> String {
+    "convoy".to_string()
 }
 
 #[derive(Serialize, Deserialize, Debug)]
