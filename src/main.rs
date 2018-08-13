@@ -14,6 +14,7 @@ extern crate clap;
 
 mod config;
 mod pkgmgr;
+mod project;
 mod backends;
 
 fn main() {
