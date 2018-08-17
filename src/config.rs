@@ -58,18 +58,12 @@ fn get_default_location() -> String {
 pub enum Backend {
     EventAssembler,
     Native,
-    Custom(BackendCfg),
 }
 
 impl Default for Backend {
     fn default() -> Self {
         Backend::EventAssembler
     }
-}
-
-// TODO
-#[derive(Serialize, Deserialize, Debug)]
-pub struct BackendCfg {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -123,40 +117,6 @@ mod config_tests {
             Backend::EventAssembler => (),
             _ => panic!("Wrong backend!")
         }
-    }
-
-    #[test]
-    fn custom() {
-        let cfg = r#"
-        title = "Custom Backend"
-
-        [backend]
-        type = "Custom"
-        "#;
-        let result: BaseConfig = toml::from_str(cfg).unwrap();
-
-        match result.backend {
-            Backend::Custom(_) => (),
-            _ => panic!("Wrong backend!")
-        }
-    }
-
-    #[test]
-    fn tools() {
-        let cfg = r#"
-        title = "Tools list"
-
-        [tools.a]
-        variant = "a"
-        version = "b"
-
-        [tools.b]
-        "#;
-
-        let result: BaseConfig = toml::from_str(cfg).unwrap();
-
-        assert!(result.tools.contains_key("a"));
-        assert!(result.tools.contains_key("b"))
     }
 }
 
