@@ -2,3 +2,8 @@
 title = "Sample"
 backend = "EventAssembler"
 
+[[tools.EventAssembler]]
+variant = ColorzCore
+
+[[tools.]]
+

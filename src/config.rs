@@ -1,4 +1,4 @@
-/* config.rs -- Configuration definitions and implementations.
+    /* config.rs -- Configuration definitions and implementations.
  *
  * Edit this file if you want to extend the configuration options!
  */
@@ -54,7 +54,7 @@ fn get_default_location() -> String {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(tag = "type")]
+//#[serde(untagged)]
 pub enum Backend {
     EventAssembler,
     Native,
@@ -70,17 +70,11 @@ impl Default for Backend {
 pub struct ToolVer {
     #[serde(default = "default_version")]
     pub version: String,
-    #[serde(default = "default_user")]
-    pub owner: String,
     pub variant: Option<String>,
 }
 
 fn default_version() -> String {
     "*".to_string()
-}
-
-fn default_user() -> String {
-    "FEUniverse".to_string()
 }
 
 /* ---------------------------------------------------------------------- */
@@ -93,9 +87,7 @@ mod config_tests {
     fn basic_enums() {
         let cfg = r#"
         title = "debug_string"
-
-        [backend]
-        type = "EventAssembler"
+        backend = "EventAssembler"
         "#;
 
         let result: BaseConfig = toml::from_str(cfg).unwrap();
