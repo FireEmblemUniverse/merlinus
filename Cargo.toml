@@ -1,6 +1,13 @@
 [package]
 name = "merlinus"
 version = "0.1.0"
-authors = ["rider <camtech075@gmail.com>"]
+authors = ["Cameron Wong <camtech075@gmail.com>"]
+edition = '2018'
 
 [dependencies]
+subprocess = "0.1.18"
+toml = "0.5"
+serde = { version = "1.0", features = ["derive"] }
+serde_test = "1.0"
+failure = "0.1.6"
+
