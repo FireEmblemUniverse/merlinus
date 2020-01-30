@@ -1,0 +1,88 @@
+
+[[type]]
+name = "Portrait"
+metatype = "record"
+fields = {...}
+
+[[type]]
+name = "Coproduct"
+metatype = "oneof"
+variants = {...}
+
+[[type]]
+name = "Alias"
+metatype = "alias"
+of = "Portrait"
+
+[[type]]
+name = "List"
+metatype = "many"
+of = "Portrait"
+
+[[type]]
+name = "Portrait"
+metatype = "record"
+
+  [[type.field]]
+  name = "index"
+  type = "Byte"
+
+  [[type.field]]
+  name = "filename"
+  type = "String"
+
+  [[type.field]]
+  name = "mouth_x_offs"
+  type = "Byte"
+
+  [[type.field]]
+  name = "mouth_y_offs"
+  type = "Byte"
+
+  [[type.field]]
+  name = "eyes_x_offs"
+  type = "Byte"
+
+  [[type.field]]
+  name = "eyes_y_offs"
+  type = "Byte"
+
+# in `handlers.toml`
+
+[[handler]]
+src_type = "Portrait"
+target_fmt = "EA_Buildfile"
+
+# one of the following `exec` definitions...
+
+# "builtin" is self-explanatory. there likely won't be many of these
+exec = { kind = "builtin", function = "FormatPortrait" }
+
+# "external" is for invoking an external command. These should always take
+# the input data on stdin (either as `text` or `bin`ary), and output something
+# that is known to `target_fmt`.
+exec = { kind = "external"
+       , in_fmt = "text"
+       , out_fmt = "bin"
+       , cmd = "PortraitFormatter_ex"
+       }
+
+# somewhere else, the definition of an actual portrait
+
+[[data]]
+type = "Portrait"
+
+variant = ""
+data = ...
+
+# This identifier can be anything
+[[data]]
+type = "Portrait"
+
+index = 0x2
+filename = "Vedge.png"
+mouth_x_offs = 2
+mouth_y_offs = 6
+eyes_x_offs = 3
+eyes_y_offs = 4
+

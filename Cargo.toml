@@ -4,6 +4,14 @@ version = "0.1.0"
 authors = ["Cameron Wong <camtech075@gmail.com>"]
 edition = '2018'
 
+[lib]
+name = "merlinus_internal"
+path = "src/lib.rs"
+
+[[bin]]
+name = "merlinus"
+path = "src/main.rs"
+
 [dependencies]
 subprocess = "0.1.18"
 toml = "0.5"

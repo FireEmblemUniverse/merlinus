@@ -1,13 +1,16 @@
-
 use std::collections::HashMap;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 mod serializers;
 
+// Tests
+#[cfg(test)]
+mod serde_tests;
+
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, Clone)]
 #[serde(transparent)]
-pub struct Identifier(String);
+pub struct Identifier(pub String);
 impl Identifier {
     pub fn to_string(&self) -> &String {
         let Identifier(s) = self;
@@ -31,11 +34,11 @@ pub enum MType {
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct Entry {
     #[serde(rename = "type")]
-    type_: MType,
+    pub type_: MType,
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub enum Meta {
+pub enum Kind {
     Product(HashMap<Identifier, Entry>),
     Coproduct(HashMap<Identifier, Entry>),
     Many(MType),
@@ -45,5 +48,5 @@ pub enum Meta {
 #[derive(Debug, PartialEq, Eq)]
 pub struct Custom {
     name: Identifier,
-    contents: Meta,
+    contents: Kind,
 }
