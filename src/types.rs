@@ -10,7 +10,7 @@ mod serde_tests;
 
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, Clone)]
 #[serde(transparent)]
-pub struct Identifier(pub String);
+pub struct Identifier(String);
 impl Identifier {
     pub fn to_string(&self) -> &String {
         let Identifier(s) = self;
@@ -18,7 +18,22 @@ impl Identifier {
     }
 }
 
-// Types representing Merlinus-defined types
+// Program state
+
+pub struct TypeMap(HashMap<Identifier, MType>);
+
+impl TypeMap {
+    fn get(&self, s: String) -> Option<&MType> {
+        let TypeMap(m) = self;
+        m.get(&Identifier(s))
+    }
+}
+
+pub struct ProjectSettings {
+    types: TypeMap,
+}
+
+// Merlinus schemas
 
 #[derive(Serialize, Debug, PartialEq, Eq, Clone)]
 #[serde(untagged)]
@@ -49,4 +64,17 @@ pub enum Kind {
 pub struct Custom {
     name: Identifier,
     contents: Kind,
+}
+
+// Protocol types
+
+pub enum MObj {
+    Unit,
+    Bool(bool),
+    Byte(i8),
+    Short(i16),
+    Word(i32),
+    String(String),
+    List(Vec<MObj>),
+    Object(HashMap<String, MObj>),
 }

@@ -47,26 +47,6 @@ metatype = "record"
   name = "eyes_y_offs"
   type = "Byte"
 
-# in `handlers.toml`
-
-[[handler]]
-src_type = "Portrait"
-target_fmt = "EA_Buildfile"
-
-# one of the following `exec` definitions...
-
-# "builtin" is self-explanatory. there likely won't be many of these
-exec = { kind = "builtin", function = "FormatPortrait" }
-
-# "external" is for invoking an external command. These should always take
-# the input data on stdin (either as `text` or `bin`ary), and output something
-# that is known to `target_fmt`.
-exec = { kind = "external"
-       , in_fmt = "text"
-       , out_fmt = "bin"
-       , cmd = "PortraitFormatter_ex"
-       }
-
 # somewhere else, the definition of an actual portrait
 
 [[data]]

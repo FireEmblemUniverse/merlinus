@@ -1,0 +1,7 @@
+
+# The important attribute here is `base`, which is used to determine which
+# preprocessors should be run.
+
+name = "merlinus_poc"
+base = "FE7"
+

@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 use std::fmt;
 
-use super::{Custom, Entry, Identifier, Kind as K, MType};
+use super::{Custom, Entry, Identifier, Kind as K, MObj, MType};
 use serde::{
-    de::{self, Deserializer, MapAccess, Visitor},
+    de::{self, Deserializer, MapAccess, SeqAccess, Visitor},
     ser::{SerializeStruct, Serializer},
     Deserialize, Serialize,
 };
@@ -15,7 +15,8 @@ const PRIMITIVE_TYPES: &'_ [(&'_ str, MType)] = &[
     ("String", MType::MString),
 ];
 
-const REPEATED_CONTENT_MSG: &str = "should have exactly one of `of`, `fields`, `variants`";
+const REPEATED_CONTENT_MSG: &str =
+    "should have exactly one of `of`, `fields`, `variants`";
 
 impl Serialize for Custom {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -187,7 +188,8 @@ impl<'de> Deserialize<'de> for Custom {
                     }
                 }
 
-                let name: Identifier = name.ok_or_else(|| de::Error::missing_field("name"))?;
+                let name: Identifier =
+                    name.ok_or_else(|| de::Error::missing_field("name"))?;
                 let metatype: Kind =
                     metatype.ok_or_else(|| de::Error::missing_field("metatype"))?;
                 let contents: _Meta = contents.ok_or_else(|| {
@@ -252,5 +254,130 @@ impl<'de> Deserialize<'de> for Custom {
         }
 
         deserializer.deserialize_struct("Custom", FIELDS, TypeVisitor)
+    }
+}
+
+impl<'de> Deserialize<'de> for MObj {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct ObjVisitor;
+
+        impl<'de> Visitor<'de> for ObjVisitor {
+            type Value = MObj;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("A Merlinus-compatible object")
+            }
+
+            fn visit_i8<E>(self, value: i8) -> Result<MObj, E>
+            where
+                E: de::Error,
+            {
+                Ok(MObj::Byte(value))
+            }
+
+            fn visit_i16<E>(self, value: i16) -> Result<MObj, E>
+            where
+                E: de::Error,
+            {
+                Ok(MObj::Short(value))
+            }
+
+            fn visit_i32<E>(self, value: i32) -> Result<MObj, E>
+            where
+                E: de::Error,
+            {
+                Ok(MObj::Word(value))
+            }
+
+            fn visit_i64<E>(self, value: i64) -> Result<MObj, E>
+            where
+                E: de::Error,
+            {
+                use std::i32;
+                if value >= i64::from(i32::MIN) && value <= i64::from(i32::MAX) {
+                    Ok(MObj::Word(value as i32))
+                } else {
+                    Err(E::custom(format!("i32 out of range: {}", value)))
+                }
+            }
+
+            fn visit_u8<E>(self, value: u8) -> Result<MObj, E>
+            where
+                E: de::Error,
+            {
+                Ok(MObj::Byte(value as i8))
+            }
+
+            fn visit_u16<E>(self, value: u16) -> Result<MObj, E>
+            where
+                E: de::Error,
+            {
+                Ok(MObj::Short(value as i16))
+            }
+
+            fn visit_u32<E>(self, value: u32) -> Result<MObj, E>
+            where
+                E: de::Error,
+            {
+                Ok(MObj::Word(value as i32))
+            }
+
+            fn visit_u64<E>(self, value: u64) -> Result<MObj, E>
+            where
+                E: de::Error,
+            {
+                use std::u32;
+                if value <= u64::from(u32::MAX) {
+                    Ok(MObj::Word(value as i32))
+                } else {
+                    Err(E::custom(format!("u32 out of range: {}", value)))
+                }
+            }
+
+            fn visit_string<E>(self, s: String) -> Result<MObj, E>
+            where
+                E: de::Error,
+            {
+                Ok(MObj::String(s))
+            }
+
+            fn visit_unit<E>(self) -> Result<MObj, E>
+            where
+                E: de::Error,
+            {
+                Ok(MObj::Unit)
+            }
+
+            fn visit_seq<S>(self, mut seq: S) -> Result<MObj, S::Error>
+            where
+                S: SeqAccess<'de>,
+            {
+                let mut result = Vec::with_capacity(seq.size_hint().unwrap_or(0));
+
+                while let Some(v) = seq.next_element()? {
+                    result.push(v);
+                }
+
+                Ok(MObj::List(result))
+            }
+
+            fn visit_map<M>(self, mut m: M) -> Result<MObj, M::Error>
+            where
+                M: MapAccess<'de>,
+            {
+                let mut result = HashMap::with_capacity(m.size_hint().unwrap_or(0));
+
+                while let Some((k, v)) = m.next_entry()? {
+                    result.insert(k, v);
+                }
+
+                Ok(MObj::Object(result))
+            }
+        }
+
+        deserializer.deserialize_any(ObjVisitor)
     }
 }
