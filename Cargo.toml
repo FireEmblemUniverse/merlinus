@@ -4,4 +4,19 @@ version = "0.1.0"
 authors = ["Cameron Wong <cam@camdar.io>"]
 edition = '2018'
 
+[lib]
+name = "merlinus_internal"
+path = "src/lib.rs"
+
+[[bin]]
+name = "merlinus"
+path = "src/main.rs"
+
 [dependencies]
+tokio = { version = "1", features = ["full"] }
+thiserror = "1.0.24"
+anyhow = "1.0.40"
+smol_str = "0.1.17"
+relative-path = "1.4.0"
+genawaiter = "0.99.1"
+futures = "0.3"
